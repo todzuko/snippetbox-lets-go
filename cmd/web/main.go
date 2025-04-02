@@ -33,7 +33,11 @@ func main() {
 	if err != nil {
 		logger.Error(err.Error())
 	}
+
+	addr := flag.String("addr", os.Getenv("HTTP_ADDR"), "HTTP address")
 	dsn := flag.String("dsn", os.Getenv("DSN"), "MySQL data source name")
+	flag.Parse()
+
 	db, err := openDb(*dsn)
 	if err != nil {
 		logger.Error(err.Error())
@@ -61,12 +65,15 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
-	addr := flag.String("addr", os.Getenv("HTTP_ADDR"), "HTTP address")
-	flag.Parse()
+	srv := &http.Server{
+		Addr:     *addr,
+		Handler:  app.routes(),
+		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
+	}
 
-	logger.Info("Starting server", slog.String("addr", *addr))
+	logger.Info("Starting server", slog.String("addr", srv.Addr))
 
-	err = http.ListenAndServe(*addr, app.routes())
+	err = srv.ListenAndServe()
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)

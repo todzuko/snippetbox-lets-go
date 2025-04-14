@@ -1,6 +1,8 @@
 module github.com/todzuko/snippetbox-lets-go
 
-go 1.22.5
+go 1.23.0
+
+toolchain go1.24.2
 
 require (
 	github.com/go-sql-driver/mysql v1.8.1
@@ -13,4 +15,5 @@ require (
 	github.com/alexedwards/scs/mysqlstore v0.0.0-20250212122300-421ef1d8611c // indirect
 	github.com/alexedwards/scs/v2 v2.8.0 // indirect
 	github.com/go-playground/form/v4 v4.2.1 // indirect
+	golang.org/x/crypto v0.37.0 // indirect
 )

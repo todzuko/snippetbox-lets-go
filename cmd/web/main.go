@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"github.com/alexedwards/scs/mysqlstore"
@@ -33,7 +34,11 @@ func main() {
 	if err != nil {
 		logger.Error(err.Error())
 	}
+
+	addr := flag.String("addr", os.Getenv("HTTP_ADDR"), "HTTP address")
 	dsn := flag.String("dsn", os.Getenv("DSN"), "MySQL data source name")
+	flag.Parse()
+
 	db, err := openDb(*dsn)
 	if err != nil {
 		logger.Error(err.Error())
@@ -52,6 +57,7 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
+	sessionManager.Cookie.Secure = true
 
 	app := &application{
 		logger:         logger,
@@ -61,12 +67,23 @@ func main() {
 		sessionManager: sessionManager,
 	}
 
-	addr := flag.String("addr", os.Getenv("HTTP_ADDR"), "HTTP address")
-	flag.Parse()
+	tlsConfig := &tls.Config{
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
 
-	logger.Info("Starting server", slog.String("addr", *addr))
+	srv := &http.Server{
+		Addr:         *addr,
+		Handler:      app.routes(),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
 
-	err = http.ListenAndServe(*addr, app.routes())
+	logger.Info("Starting server", slog.String("addr", srv.Addr))
+
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)

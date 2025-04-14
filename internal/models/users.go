@@ -48,9 +48,9 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	var id int
 	var hashedPassword []byte
 
-	q := `SELECT id, hashed_password, created FROM users WHERE email = ?`
+	q := `SELECT id, hashed_password FROM users WHERE email = ?`
 
-	err := m.DB.QueryRow(q, email).Scan(&id, hashedPassword)
+	err := m.DB.QueryRow(q, email).Scan(&id, &hashedPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return 0, ErrInvalidCredentials

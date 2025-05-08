@@ -15,5 +15,5 @@ https://lets-go.alexedwards.net/sample/00.00-front-matter.html
 
 - run tests
 ```sh
-  go test .cmd/web -v
+  go test ./cmd/web -v
 ```

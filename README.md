@@ -8,7 +8,12 @@ https://lets-go.alexedwards.net/sample/00.00-front-matter.html
 ```sh
   go run {GO_ROOT_PATH}/src/crypto/tls/generate_cert.go --rsa-bits=2048 --host=localhost
 ```
--start the server
+- start the server
 ```sh
   go run ./cmd/web
+```
+
+- run tests
+```sh
+  go test .cmd/web -v
 ```

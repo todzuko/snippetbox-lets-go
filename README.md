@@ -13,6 +13,7 @@ https://lets-go.alexedwards.net/sample/00.00-front-matter.html
   go run ./cmd/web
 ```
 
+### Tests
 - run tests
 - `-count=1` - run without cache
 ```sh
@@ -23,6 +24,19 @@ run specific test
   go test -v -run="^TestPing$" ./cmd/web/
 ```
 run specific sub-test
-```she
+```sh
 go test -v -run="^TestHumanDate$/^UTC$" ./cmd/web
+```
+
+check test coverage
+```sh
+  go test -cover ./...
+```
+check detailed test coverage
+```sh
+  go test -coverprofile=/tmp/profile.out ./...   # -covermode=count/atomic 
+#  Check results: 
+  go tool cover -func=/tmp/profile.out
+#  or
+  go tool cover -html=/tmp/profile.out
 ```
